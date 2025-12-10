@@ -1,32 +1,35 @@
 # API de Resenha – Desenvolvimento Back-End
 
-API RESTful desenvolvida em **Node.js + Express** para gerenciar usuários, advogados e processos jurídicos.  
-A API utiliza **JWT** para autenticação e **bcrypt** para armazenar as senhas de forma segura (hash).  
+API RESTful desenvolvida em **Node.js + Express** para gerenciar usuários, livros e resenhas. jurídicos.  
+A API utiliza **JWT** para autenticação e **bcrypt** para armazenar as senhas de forma segura(hash).  
 Na persistência de dados é usado o ORM **Sequelize** com banco de dados **MySQL**.
+A validação de dados é feita com Ajv. 
 
 Este projeto faz parte da disciplina de **Desenvolvimento Back-End** e pode ser usado como base para estudo de:
 - CRUD com Node.js + Express;
 - Autenticação com JWT;
-- Modelagem relacional simples (1:N).
+- Modelagem relacional simples (1:N);
+- Rotas aninhadas.
 
 ---
 
 ## Compatibilidade
 
-- Node.js >= 18.x  
-- npm >= 9.x  
-- Express 4.x  
-- MySQL 8.x  
-- bcrypt 6.x  
-- jsonwebtoken 9.x  
-- mysql2 3.x  
-- Sequelize 6.x  
+- Node.js;
+- Express;
+- MySQL;
+- Sequelize;
+- bcrypt;
+- json web token;
+- Ajv;
+- Cors;
+- Swagger-ui-express.
 
 ---
 
 ## Modelagem de Dados
 
-O banco de dados MySQL (por exemplo `advocacia_db`) possui **3 tabelas** principais:
+O banco de dados MySQL  possui **3 tabelas** principais:
 
 ### 1. `usuario`
 Armazena quem pode acessar o sistema.
@@ -36,26 +39,28 @@ Armazena quem pode acessar o sistema.
 - `email` (VARCHAR, UNIQUE)  
 - `senha` (VARCHAR) – **hash da senha com bcrypt**, nunca texto plano.
 
-### 2. `advogado`
-Armazena os advogados cadastrados.
+### 2. `livro`
+Armazena os livros cadastrados.
 
 - `id` (INT, PK, AUTO_INCREMENT)  
-- `nome` (VARCHAR)  
-- `oab` (VARCHAR, UNIQUE) – número da OAB  
-- `especialidade` (VARCHAR) – ex.: “Direito Civil”, “Direito Penal”
+- `titulo` (VARCHAR)  
+- `autor` (VARCHAR, UNIQUE) 
+- `genero` (VARCHAR) – opcional
+- `isbn` (VARCHAR, UNIQUE)
 
-### 3. `processo`
-Armazena os processos jurídicos.
+### 3. `resenha`
+Armazena as resenhas relacionadas aos livros.
 
 - `id` (INT, PK, AUTO_INCREMENT)  
-- `numero_processo` (VARCHAR, UNIQUE)  
-- `descricao` (TEXT)  
-- `status` (VARCHAR) – ex.: “em andamento”, “arquivado”, “finalizado”  
-- `id_advogado` (INT, FK → `advogado.id`)  
+- `titulo` (VARCHAR)
+- `conteudo` (TEXT)  
+- `nota` (INT) – 1-5 
+- `livro_id` (INT, FK → `livro.id`)  
+- `usuario_id` (INT, FK → `usuario.id`)  
 
 **Relacionamento:**  
-Um **advogado** pode ter **vários processos** (1:N),  
-mas cada **processo** pertence a **apenas um advogado**.
+- Um **livro** pode ter **várias resenhas** (1:N);
+- Um **usuário** pode ter **várias resenhas** (1:N).
 
 ---
 
@@ -66,7 +71,7 @@ Estrutura principal de pastas/arquivos:
 ```text
 /app
   /commons        # helpers e utilitários
-  /controllers    # lógica de cada recurso (Usuario, Advogado, Processo)
+  /controllers    # lógica de cada recurso (Usuario, Livro, Resenha)
   /middlewares    # middlewares, ex.: validação de token JWT
   /models         # models Sequelize e conexão com o banco
   /routes         # definição das rotas da API
@@ -78,7 +83,7 @@ package.json      # metadados e dependências do projeto
 
 ## Configuração do Banco de Dados
 
-Crie um banco de dados MySQL, por exemplo: advocacia_db
+Crie um banco de dados MySQL, por exemplo: resenhas_db
 (pode ser pelo phpMyAdmin ou outro cliente).
 
 No XAMPP, inicie o MySQL e o Apache. 
@@ -100,7 +105,7 @@ Dentro da pasta do projeto, instalar as dependências:
 npm install
 ```
 
-Certificar-se de que o MySQL está rodando e o banco advocacia_db existe.
+Certificar-se de que o MySQL está rodando e o banco resenhas_db existe.
 
 Iniciar a aplicação em modo desenvolvimento:
 
@@ -155,23 +160,30 @@ Body (JSON):
 ## Rotas principais
 
 ### Usuários
-- `POST /usuarios` – cadastro de usuário
-- `POST /usuarios/login` – login e geração de JWT
+- `POST /usuarios` – cadastro de usuário (público)
+- `POST /usuarios/login` – login e geração de JWT (público)
 - `GET /usuarios` – lista usuários (rota protegida)
 
-### Advogados
-- `GET /advogados` – lista todos
-- `GET /advogados/:id` – busca por id
-- `POST /advogados` – cria advogado (protegida)
-- `PUT /advogados/:id` – atualiza advogado (protegida)
-- `DELETE /advogados/:id` – remove advogado (protegida)
+### Livros (Recurso A)
+- `GET /livros` – lista todos
+- `GET /livros/:id` – busca por id
+- `POST /livros` – criar (protegida)
+- `PUT /livros/:id` – atualizar (protegida)
+- `DELETE /livros/:id` – remover  (protegida)
 
-### Processos
-- `GET /processos` – lista processos
-- `GET /processos/:id` – busca por id
-- `POST /processos` – cria processo (protegida)
-- `PUT /processos/:id` – atualiza processo (protegida)
-- `DELETE /processos/:id` – remove processo (protegida)
+### Resenhas (Recurso B aninhado)
+- `GET /resenha` – lista resenhas do livro
+- `GET /resenha/:id` – busca por id
+- `POST /resenha` – criar resenhas para livro 
+- `PUT /resenha/:id` – atualizar resenha 
+- `DELETE /resenha/:id` – remover resenha 
+
+- Nas rotas aninhadas, o livro_id vem pela URL. 
+
+---
+
+### Validação
+Os dados de entrada são validados no servidor com Ajv, evitando envio de campos extras e garantindo tipos e obrigatoriedades conforme os schemas definidos. 
 
 ---
 
