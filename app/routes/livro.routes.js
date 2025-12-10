@@ -5,7 +5,7 @@ const LivroController = require("../controllers/LivroController");
 const ResenhaController = require("../controllers/ResenhaController");
 const TokenValido = require("../middlewares/TokenValido");
 
-// Se quiser proteger tudo de livro/resenha:
+// Protege tudo aqui (correto pelo enunciado)
 router.use(TokenValido.check);
 
 // CRUD de Livro
@@ -15,11 +15,13 @@ router.get("/:id", LivroController.buscarPorId);
 router.put("/:id", LivroController.atualizar);
 router.delete("/:id", LivroController.deletar);
 
-// ROTAS ANINHADAS DE RESENHA
-// GET /livros/:livro_id/resenhas
+// CRUD ANINHADO de Resenha
 router.get("/:livro_id/resenhas", ResenhaController.listarPorLivro);
+router.get("/:livro_id/resenhas/:id", ResenhaController.buscarPorIdDoLivro);
 
-// POST /livros/:livro_id/resenhas
 router.post("/:livro_id/resenhas", ResenhaController.criarParaLivro);
+
+router.put("/:livro_id/resenhas/:id", ResenhaController.atualizarDoLivro);
+router.delete("/:livro_id/resenhas/:id", ResenhaController.deletarDoLivro);
 
 module.exports = router;

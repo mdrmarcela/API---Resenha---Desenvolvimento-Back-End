@@ -26,7 +26,6 @@ app.use('/usuario', usuarioRoutes);
 
 // rotas protegidas
 app.use('/livro', auth.check, livroRoutes);
-app.use('/resenha', auth.check, resenhaRoutes);
 
 // porta
 const PORT = process.env.PORT || 3000;
