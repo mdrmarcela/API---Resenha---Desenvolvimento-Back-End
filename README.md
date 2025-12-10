@@ -86,7 +86,7 @@ No XAMPP, inicie o MySQL e o Apache.
 ---
 
 ## Diagrama do Banco de Dados
-![Diagrama do banco](./modelagem/modelagem.png)
+![Diagrama do banco](./modelagem/Modelagem.png)
 
 ---
 
