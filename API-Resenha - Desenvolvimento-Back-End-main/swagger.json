@@ -1,0 +1,590 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Advocacia",
+    "version": "1.0.0",
+    "description": "API para gerenciamento de usuários, advogados e processos (N2)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor local"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UsuarioCadastroInput": {
+        "type": "object",
+        "required": ["nome", "email", "senha"],
+        "properties": {
+          "nome": { "type": "string", "example": "Marcela" },
+          "email": { "type": "string", "example": "marcela@example.com" },
+          "senha": { "type": "string", "example": "senha123" }
+        }
+      },
+      "UsuarioLoginInput": {
+        "type": "object",
+        "required": ["email", "senha"],
+        "properties": {
+          "email": { "type": "string", "example": "marcela@example.com" },
+          "senha": { "type": "string", "example": "senha123" }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "nome": { "type": "string", "example": "Marcela" },
+          "email": { "type": "string", "example": "marcela@example.com" }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "usuario": { "$ref": "#/components/schemas/Usuario" },
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
+        }
+      },
+      "ErroPadrao": {
+        "type": "object",
+        "properties": {
+          "erro": { "type": "string" }
+        }
+      },
+      "AdvogadoInput": {
+        "type": "object",
+        "required": ["nome", "oab", "especialidade"],
+        "properties": {
+          "nome": { "type": "string", "example": "Fulano de Tal" },
+          "oab": { "type": "string", "example": "12345" },
+          "especialidade": { "type": "string", "example": "Trabalhista" }
+        }
+      },
+      "Advogado": {
+        "allOf": [
+          { "$ref": "#/components/schemas/AdvogadoInput" },
+          {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 1 }
+            }
+          }
+        ]
+      },
+      "ProcessoInput": {
+        "type": "object",
+        "required": ["numero_processo", "descricao", "status"],
+        "properties": {
+          "numero_processo": { "type": "string", "example": "PROC-001" },
+          "descricao": { "type": "string", "example": "Ação trabalhista" },
+          "status": { "type": "string", "example": "aberto" }
+        }
+      },
+      "ProcessoComAdvogadoInput": {
+        "allOf": [
+          { "$ref": "#/components/schemas/ProcessoInput" },
+          {
+            "type": "object",
+            "properties": {
+              "id_advogado": { "type": "integer", "example": 1 }
+            }
+          }
+        ]
+      },
+      "Processo": {
+        "allOf": [
+          { "$ref": "#/components/schemas/ProcessoInput" },
+          {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "id_advogado": { "type": "integer", "example": 1 }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/usuario": {
+      "post": {
+        "tags": ["Usuário"],
+        "summary": "Cadastro de usuário",
+        "description": "Cria um novo usuário, salvando a senha com hash e retornando um token JWT.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UsuarioCadastroInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos (Ajv) ou e-mail já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao criar usuário",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Usuário"],
+        "summary": "Listar usuários",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários (sem senha)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Usuario" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido"
+          }
+        }
+      }
+    },
+    "/usuario/login": {
+      "post": {
+        "tags": ["Usuário"],
+        "summary": "Login do usuário",
+        "description": "Autentica o usuário e retorna um token JWT.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UsuarioLoginInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos (Ajv)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao realizar login",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/advogados": {
+      "get": {
+        "tags": ["Advogado"],
+        "summary": "Listar advogados",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de advogados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Advogado" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token ausente ou inválido" },
+          "500": { "description": "Erro ao listar advogados" }
+        }
+      },
+      "post": {
+        "tags": ["Advogado"],
+        "summary": "Criar advogado",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdvogadoInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Advogado criado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Advogado" }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou OAB já cadastrada"
+          },
+          "401": { "description": "Token ausente ou inválido" },
+          "500": { "description": "Erro ao criar advogado" }
+        }
+      }
+    },
+    "/advogados/{id}": {
+      "get": {
+        "tags": ["Advogado"],
+        "summary": "Buscar advogado por ID",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Advogado encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Advogado" }
+              }
+            }
+          },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Advogado não encontrado" },
+          "500": { "description": "Erro ao buscar advogado" }
+        }
+      },
+      "put": {
+        "tags": ["Advogado"],
+        "summary": "Atualizar advogado",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdvogadoInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Advogado atualizado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Advogado" }
+              }
+            }
+          },
+          "400": { "description": "Dados inválidos ou OAB já cadastrada" },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Advogado não encontrado" },
+          "500": { "description": "Erro ao atualizar advogado" }
+        }
+      },
+      "delete": {
+        "tags": ["Advogado"],
+        "summary": "Excluir advogado",
+        "description": "Não permite excluir advogado que possua processos vinculados.",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Advogado excluído com sucesso" },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Advogado não encontrado" },
+          "409": {
+            "description": "Não é possível excluir advogado com processos vinculados"
+          },
+          "500": { "description": "Erro ao deletar advogado" }
+        }
+      }
+    },
+
+    "/advogados/{id_advogado}/processos": {
+      "get": {
+        "tags": ["Processo"],
+        "summary": "Listar processos de um advogado",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id_advogado",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de processos do advogado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Processo" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Advogado não encontrado" },
+          "500": { "description": "Erro ao listar processos do advogado" }
+        }
+      },
+      "post": {
+        "tags": ["Processo"],
+        "summary": "Criar processo para advogado",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id_advogado",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProcessoInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Processo criado para o advogado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Processo" }
+              }
+            }
+          },
+          "400": { "description": "Dados inválidos ou numero_processo já cadastrado" },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Advogado não encontrado" },
+          "500": { "description": "Erro ao criar processo para advogado" }
+        }
+      }
+    },
+
+    "/processos": {
+      "get": {
+        "tags": ["Processo"],
+        "summary": "Listar processos",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de processos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Processo" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token ausente ou inválido" },
+          "500": { "description": "Erro ao listar processos" }
+        }
+      },
+      "post": {
+        "tags": ["Processo"],
+        "summary": "Criar processo (informando id_advogado no corpo)",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProcessoComAdvogadoInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Processo criado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Processo" }
+              }
+            }
+          },
+          "400": { "description": "Dados inválidos ou numero_processo já cadastrado" },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Advogado não encontrado" },
+          "500": { "description": "Erro ao criar processo" }
+        }
+      }
+    },
+    "/processos/{id}": {
+      "get": {
+        "tags": ["Processo"],
+        "summary": "Buscar processo por ID",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Processo encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Processo" }
+              }
+            }
+          },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Processo não encontrado" },
+          "500": { "description": "Erro ao buscar processo" }
+        }
+      },
+      "put": {
+        "tags": ["Processo"],
+        "summary": "Atualizar processo",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProcessoComAdvogadoInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Processo atualizado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Processo" }
+              }
+            }
+          },
+          "400": { "description": "Dados inválidos ou numero_processo já cadastrado" },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Processo não encontrado" },
+          "500": { "description": "Erro ao atualizar processo" }
+        }
+      },
+      "delete": {
+        "tags": ["Processo"],
+        "summary": "Excluir processo",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Processo excluído" },
+          "401": { "description": "Token ausente ou inválido" },
+          "404": { "description": "Processo não encontrado" },
+          "500": { "description": "Erro ao deletar processo" }
+        }
+      }
+    }
+  }
+}
