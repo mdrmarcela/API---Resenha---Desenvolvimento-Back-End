@@ -1,6 +1,6 @@
 module.exports = {
   dbconfig: {
-    database: 'advogados_db', // nome do banco no phpMyAdmin
+    database: 'resenhas_db', // nome do banco no phpMyAdmin
     user: 'root',             // padrão do XAMPP
     passwd: '',               // senha em branco 
     host: 'localhost',

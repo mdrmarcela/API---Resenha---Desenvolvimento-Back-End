@@ -18,15 +18,15 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // rotas
 const usuarioRoutes = require('./app/routes/usuario.routes');
-const advogadoRoutes = require('./app/routes/advogado.routes');
-const processoRoutes = require('./app/routes/processo.routes');
+const livroRoutes = require('./app/routes/livro.routes');
+const resenhaRoutes = require('./app/routes/resenha.routes');
 
 // rotas públicas
 app.use('/usuario', usuarioRoutes);
 
 // rotas protegidas
-app.use('/advogados', auth.check, advogadoRoutes);
-app.use('/processos', auth.check, processoRoutes);
+app.use('/livro', auth.check, livroRoutes);
+app.use('/resenha', auth.check, resenhaRoutes);
 
 // porta
 const PORT = process.env.PORT || 3000;
