@@ -1,33 +1,36 @@
-const express = require('express');
-require('dotenv').config(); // carrega JWT_SECRET etc.
+const express = require("express");
+require("dotenv").config();
 
-// carrega models + relations + sync com o BD
-require('./app/models'); 
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
+require("./app/models");
 
-// middleware de autenticação
-const auth = require('./app/middlewares/TokenValido');
+const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 const app = express();
 
-// middleware pra ler JSON do body
 app.use(express.json());
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// CORS (ajuste o FRONTEND_URL no .env)
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "*",
+  })
+);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // rotas
-const usuarioRoutes = require('./app/routes/usuario.routes');
-const livroRoutes = require('./app/routes/livro.routes');
-const resenhaRoutes = require('./app/routes/resenha.routes');
+const usuarioRoutes = require("./app/routes/usuario.routes");
+const livroRoutes = require("./app/routes/livro.routes");
 
-// rotas públicas
-app.use('/usuario', usuarioRoutes);
+// base correta e no plural
+app.use("/usuarios", usuarioRoutes);
+app.use("/livros", livroRoutes);
 
-// rotas protegidas
-app.use('/livro', auth.check, livroRoutes);
+// (Opcional)
+app.get("/health", (req, res) => res.json({ ok: true }));
 
-// porta
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`servidor on-line na porta ${PORT}`);

@@ -3,7 +3,7 @@
   "info": {
     "title": "API de Livros e Resenhas",
     "version": "1.0.0",
-    "description": "API para gerenciamento de usuários, livros e resenhas. Cadastro e login retornam JWT. Rotas de livros e resenhas são protegidas."
+    "description": "API para gerenciamento de usuários, livros e resenhas. Cadastro e login retornam JWT. Rotas de livros e resenhas aninhadas são protegidas."
   },
   "servers": [
     {
@@ -27,7 +27,8 @@
           "nome": { "type": "string", "example": "Marcela" },
           "email": { "type": "string", "example": "marcela@example.com" },
           "senha": { "type": "string", "example": "senha123" }
-        }
+        },
+        "additionalProperties": false
       },
       "UsuarioLoginInput": {
         "type": "object",
@@ -35,7 +36,8 @@
         "properties": {
           "email": { "type": "string", "example": "marcela@example.com" },
           "senha": { "type": "string", "example": "senha123" }
-        }
+        },
+        "additionalProperties": false
       },
       "Usuario": {
         "type": "object",
@@ -75,7 +77,8 @@
           "autor": { "type": "string", "example": "Machado de Assis" },
           "genero": { "type": "string", "example": "Romance" },
           "isbn": { "type": "string", "example": "978-85-0000-000-0" }
-        }
+        },
+        "additionalProperties": false
       },
       "Livro": {
         "allOf": [
@@ -89,9 +92,9 @@
         ]
       },
 
-      "ResenhaInput": {
+      "ResenhaInputNested": {
         "type": "object",
-        "required": ["titulo", "conteudo", "nota", "livro_id"],
+        "required": ["titulo", "conteudo", "nota", "usuario_id"],
         "properties": {
           "titulo": { "type": "string", "example": "Ótima leitura" },
           "conteudo": {
@@ -104,29 +107,37 @@
             "maximum": 5,
             "example": 5
           },
-          "livro_id": { "type": "integer", "example": 1 },
           "usuario_id": {
             "type": "integer",
             "example": 1,
             "description": "Se sua controller NÃO pega o usuário do token, envie este campo. Caso pegue do token, não precisa."
           }
-        }
+        },
+        "additionalProperties": false
       },
       "Resenha": {
-        "allOf": [
-          { "$ref": "#/components/schemas/ResenhaInput" },
-          {
-            "type": "object",
-            "properties": {
-              "id": { "type": "integer", "example": 1 }
-            }
-          }
-        ]
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "titulo": { "type": "string", "example": "Ótima leitura" },
+          "conteudo": {
+            "type": "string",
+            "example": "Texto da resenha com opinião do leitor."
+          },
+          "nota": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "livro_id": { "type": "integer", "example": 1 },
+          "usuario_id": { "type": "integer", "example": 1 }
+        }
       }
     }
   },
   "paths": {
-    "/usuario": {
+    "/usuarios": {
       "post": {
         "tags": ["Usuário"],
         "summary": "Cadastro de usuário",
@@ -195,7 +206,8 @@
         }
       }
     },
-    "/usuario/login": {
+
+    "/usuarios/login": {
       "post": {
         "tags": ["Usuário"],
         "summary": "Login do usuário",
@@ -245,7 +257,7 @@
       }
     },
 
-    "/livro": {
+    "/livros": {
       "get": {
         "tags": ["Livro"],
         "summary": "Listar livros",
@@ -288,7 +300,14 @@
               }
             }
           },
-          "500": { "description": "Erro ao listar livros" }
+          "500": {
+            "description": "Erro ao listar livros",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
         }
       },
       "post": {
@@ -322,12 +341,27 @@
               }
             }
           },
-          "401": { "description": "Token ausente ou inválido" },
-          "500": { "description": "Erro ao criar livro" }
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao criar livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
         }
       }
     },
-    "/livro/{id}": {
+
+    "/livros/{id}": {
       "get": {
         "tags": ["Livro"],
         "summary": "Buscar livro por ID",
@@ -351,9 +385,30 @@
               }
             }
           },
-          "401": { "description": "Token ausente ou inválido" },
-          "404": { "description": "Livro não encontrado" },
-          "500": { "description": "Erro ao buscar livro" }
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao buscar livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
         }
       },
       "put": {
@@ -395,9 +450,30 @@
               }
             }
           },
-          "401": { "description": "Token ausente ou inválido" },
-          "404": { "description": "Livro não encontrado" },
-          "500": { "description": "Erro ao atualizar livro" }
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao atualizar livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
         }
       },
       "delete": {
@@ -416,9 +492,295 @@
         ],
         "responses": {
           "204": { "description": "Livro excluído" },
-          "401": { "description": "Token ausente ou inválido" },
-          "404": { "description": "Livro não encontrado" },
-          "500": { "description": "Erro ao deletar livro" }
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "409": {
+            "description": "Livro possui resenhas vinculadas",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao deletar livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/livros/{livro_id}/resenhas": {
+      "get": {
+        "tags": ["Resenha"],
+        "summary": "Listar resenhas de um livro",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "livro_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de resenhas do livro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Resenha" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro não encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Resenha"],
+        "summary": "Criar resenha para um livro",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "livro_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ResenhaInputNested" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resenha criada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Resenha" }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Livro ou usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/livros/{livro_id}/resenhas/{id}": {
+      "get": {
+        "tags": ["Resenha"],
+        "summary": "Buscar resenha de um livro por ID",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "livro_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resenha encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Resenha" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Resenha não encontrada para este livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Resenha"],
+        "summary": "Atualizar resenha de um livro",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "livro_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ResenhaInputNested" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resenha atualizada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Resenha" }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Resenha não encontrada para este livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Resenha"],
+        "summary": "Excluir resenha de um livro",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "parameters": [
+          {
+            "name": "livro_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Resenha excluída" },
+          "401": {
+            "description": "Token ausente ou inválido",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          },
+          "404": {
+            "description": "Resenha não encontrada para este livro",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErroPadrao" }
+              }
+            }
+          }
         }
       }
     }
