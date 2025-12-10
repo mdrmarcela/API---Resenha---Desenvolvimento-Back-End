@@ -11,6 +11,7 @@ const conexao = new Sequelize( //Instanciando o Sequelize. Passando os parametro
   {
     host: dbconfig.host,
     dialect: dbconfig.dialect,
+    logging: false, 
     pool: {
       max: dbconfig.pool.max,
       min: dbconfig.pool.min,

@@ -114,7 +114,7 @@ const LivroModel = db.define(
     },
     genero: {
       type: Sequelize.STRING(80),
-      allowNull: false,
+      allowNull: true,
     },
     isbn: {
       type: Sequelize.STRING(30),

@@ -1,7 +1,7 @@
 {
-  "name": "api-advogados",
+  "name": "api-resenhas",
   "version": "1.0.0",
-  "description": "API de advocacia - Desenvolvimento Back-End",
+  "description": "API de resenhas - Desenvolvimento Back-End",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

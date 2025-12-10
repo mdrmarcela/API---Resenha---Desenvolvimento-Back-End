@@ -20,9 +20,9 @@ const schemaResenha = {
   properties: {
     titulo: { type: "string", minLength: 1 },
     conteudo: { type: "string", minLength: 1 },
-    nota: { type: ["integer", "string"] }, // opcional, mas validaremos faixa se vier
-    livro_id: { type: ["integer", "string"] },
-    usuario_id: { type: ["integer", "string"] },
+    nota: { type: "integer"}, // opcional, mas validaremos faixa se vier
+    livro_id: { type: "integer"},
+    usuario_id: { type: "integer" },
   },
   additionalProperties: false,
 };

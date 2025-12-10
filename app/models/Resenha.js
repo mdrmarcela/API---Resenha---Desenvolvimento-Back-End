@@ -115,7 +115,7 @@ const ResenhaModel = db.define(
 
     titulo: {
       type: Sequelize.STRING(200),
-      allowNull: true,
+      allowNull: false,
     },
 
     conteudo: {
@@ -125,7 +125,7 @@ const ResenhaModel = db.define(
 
     nota: {
       type: Sequelize.INTEGER,
-      allowNull: true,
+      allowNull: false,
       // opcional: se quiser já reforçar no model:
       validate: {
         min: 1,
