@@ -1,12 +1,23 @@
 module.exports = function (models) {
-models.advogado.hasMany(models.processo, {
-  foreignKey: 'id_advogado',
-  as: 'processos',
-});
+  // Livro 1:N Resenha
+  models.livro.hasMany(models.resenha, {
+    foreignKey: "livro_id",
+    as: "resenhas",
+  });
 
-models.processo.belongsTo(models.advogado, {
-  foreignKey: 'id_advogado',
-  as: 'advogado',
-});
+  models.resenha.belongsTo(models.livro, {
+    foreignKey: "livro_id",
+    as: "livro",
+  });
 
+  // Usuario 1:N Resenha
+  models.usuario.hasMany(models.resenha, {
+    foreignKey: "usuario_id",
+    as: "resenhas",
+  });
+
+  models.resenha.belongsTo(models.usuario, {
+    foreignKey: "usuario_id",
+    as: "usuario",
+  });
 };

@@ -81,7 +81,7 @@ const UsuarioModel = db.define(
       allowNull: false,
     },
     email: {
-      type: Sequelize.STRING(80),
+      type: Sequelize.STRING(120),
       allowNull: false,
       unique: true,
     },
