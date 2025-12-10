@@ -1,4 +1,4 @@
-# API de Advocacia – Desenvolvimento Back-End
+# API de Resenha – Desenvolvimento Back-End
 
 API RESTful desenvolvida em **Node.js + Express** para gerenciar usuários, advogados e processos jurídicos.  
 A API utiliza **JWT** para autenticação e **bcrypt** para armazenar as senhas de forma segura (hash).  
