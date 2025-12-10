@@ -16,7 +16,7 @@ const ajv = new Ajv({ allErrors: true });
 // Schema Resenha
 const schemaResenha = {
   type: "object",
-  required: ["conteudo"], // mantém simples
+  required: ["titulo", "conteudo", "nota"], // mantém simples
   properties: {
     titulo: { type: "string", minLength: 1 },
     conteudo: { type: "string", minLength: 1 },

@@ -14,7 +14,7 @@ const ajv = new Ajv({ allErrors: true });
 // Schema do Livro (sem ano_publicacao)
 const schemaLivro = {
   type: "object",
-  required: ["titulo", "autor"],
+  required: ["titulo", "autor", "isbn"],
   properties: {
     titulo: { type: "string", minLength: 1 },
     autor: { type: "string", minLength: 1 },
