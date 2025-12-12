@@ -4,13 +4,14 @@
   "description": "API de resenhas - Desenvolvimento Back-End",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon"
-  },
+  "start": "node app.js",
+  "dev": "nodemon app.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
   "keywords": [
     "api",
     "rest",
-    "advocacia"
+    "resenha"
   ],
   "author": "Marcela Dutra",
   "license": "ISC",
