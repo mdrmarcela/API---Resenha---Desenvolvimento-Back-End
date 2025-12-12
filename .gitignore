@@ -1,6 +1,7 @@
 #TESTES POSTAMAN
 
-Criar usuário - POST http://localhost:3000/usuarios
+Criar usuário - 
+#POST http://localhost:3000/usuarios
 Body (raw - JSON):
 
 {
@@ -12,10 +13,45 @@ Body (raw - JSON):
 ===GUARDA O TOKEN PARA USAR NAS ROTAS PROTEGIDAS===
 
 
+Atualizar usuário - 
+#PUT http://localhost:3000/usuarios/ID_DO_USUARIO
+{
+  "nome": "Marcela Atualizada",
+  "email": "marcela.atual@gmail.com"
+}
 
 
+Login usuário - 
+#POST http://localhost:3000/usuarios/login
+{
+  "email": 
+  "senha":}
+}
 
 
+=====LIVROS=====
+
+Criar livro - 
+#POST http://localhost:3000/livros
+Body (raw - JSON):
+
+{
+  "titulo": "Dom Casmurro",
+  "autor": "Machado de Assis",
+  "genero": "Romance",
+  "isbn": "9788535902771"
+}
+
+
+===RESENHAS===
+
+#POST http://localhost:3000/livros/ID_DO_LIVRO/resenhas
+{
+  "usuario_id": 1,
+  "titulo": "Minha resenha",
+  "conteudo": "Gostei bastante.",
+  "nota": 5
+}
 
 
 

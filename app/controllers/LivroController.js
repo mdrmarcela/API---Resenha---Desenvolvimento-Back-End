@@ -11,7 +11,7 @@ const ResenhaModel =
 const Ajv = require("ajv");
 const ajv = new Ajv({ allErrors: true });
 
-// Schema do Livro (sem ano_publicacao)
+// Schema do Livro 
 const schemaLivro = {
   type: "object",
   required: ["titulo", "autor", "isbn"],

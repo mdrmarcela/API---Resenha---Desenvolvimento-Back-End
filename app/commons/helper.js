@@ -14,7 +14,8 @@ exports.gerarTokenAcesso = (nome, id) => { //Gera token de autenticação, nele 
   });
 };
 
-// No login: verifica email/senha, se estiver ok, chama gerarTokenAcesso para criar o token e devolver para o usuário.
+//No login: verifica email/senha, se estiver ok, chama gerarTokenAcesso para criar o token e devolver para o usuário.
 
 //Nas rotas protegidas: verifica se o token enviado pelo usuário é válido (usando jwt.verify) antes de permitir o acesso.
+
 //O cliente manda o token no POSTMAN. 

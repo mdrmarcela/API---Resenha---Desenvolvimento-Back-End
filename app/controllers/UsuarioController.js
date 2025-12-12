@@ -149,6 +149,23 @@ const UsuarioController = {
       return res.status(500).json({ erro: 'Erro ao listar usuários' });
     }
   },
-};
+ 
+    async deletar(req, res) {
+  try {
+    const { id } = req.params;
 
+    const apagados = await UsuarioModel.destroy({ where: { id } });
+
+    if (!apagados) {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
+
+    return res.status(204).send();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ erro: "Erro ao deletar usuário" });
+  }
+}
+};
+  
 module.exports = UsuarioController;
