@@ -137,7 +137,7 @@ const UsuarioController = {
     }
   },
 
-  // GET /usuarios  (vamos deixar protegido com JWT)
+  // GET /usuarios 
   async listar(req, res) {
     try {
       const usuarios = await UsuarioModel.findAll({

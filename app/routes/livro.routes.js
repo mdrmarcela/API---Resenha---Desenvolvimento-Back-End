@@ -5,7 +5,7 @@ const LivroController = require("../controllers/LivroController");
 const ResenhaController = require("../controllers/ResenhaController");
 const TokenValido = require("../middlewares/TokenValido");
 
-// Protege tudo aqui (correto pelo enunciado)
+// Protege tudo aqui 
 router.use(TokenValido.check);
 
 // CRUD de Livro

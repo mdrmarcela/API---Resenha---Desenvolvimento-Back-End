@@ -126,7 +126,6 @@ const ResenhaModel = db.define(
     nota: {
       type: Sequelize.INTEGER,
       allowNull: false,
-      // opcional: se quiser já reforçar no model:
       validate: {
         min: 1,
         max: 5,

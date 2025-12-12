@@ -11,7 +11,7 @@ const app = express();
 
 app.use(express.json());
 
-// CORS (ajuste o FRONTEND_URL no .env)
+// CORS 
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
@@ -24,11 +24,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 const usuarioRoutes = require("./app/routes/usuario.routes");
 const livroRoutes = require("./app/routes/livro.routes");
 
-// base correta e no plural
 app.use("/usuarios", usuarioRoutes);
 app.use("/livros", livroRoutes);
 
-// (Opcional)
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3000;

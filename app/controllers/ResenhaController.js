@@ -41,6 +41,7 @@ const validateResenhaNested = ajv.compile(schemaResenhaNested);
 const validateResenhaFlat = ajv.compile(schemaResenhaFlat);
 
 const ResenhaController = {
+  
   // ===================== ROTAS PLANAS =====================
   // POST /resenhas
   async criar(req, res) {
