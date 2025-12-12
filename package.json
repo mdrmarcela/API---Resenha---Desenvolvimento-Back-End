@@ -4,10 +4,10 @@
   "description": "API de resenhas - Desenvolvimento Back-End",
   "main": "app.js",
   "scripts": {
-  "start": "node app.js",
-  "dev": "nodemon app.js",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [
     "api",
     "rest",
@@ -24,6 +24,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "swagger-ui-express": "^5.0.1"
   },
