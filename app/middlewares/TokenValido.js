@@ -1,5 +1,3 @@
-//Middleware de seguranca para validar token JWT
-
 const jwt = require('jsonwebtoken');
 const config = require('../../config.js');
 

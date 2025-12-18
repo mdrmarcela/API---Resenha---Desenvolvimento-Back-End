@@ -5,7 +5,7 @@ const LivroController = require("../controllers/LivroController");
 const ResenhaController = require("../controllers/ResenhaController");
 const TokenValido = require("../middlewares/TokenValido");
 
-// Protege tudo aqui 
+// Protege tudo 
 router.use(TokenValido.check);
 
 // CRUD de Livro
@@ -18,9 +18,7 @@ router.delete("/:id", LivroController.deletar);
 // CRUD ANINHADO de Resenha
 router.get("/:livro_id/resenhas", ResenhaController.listarPorLivro);
 router.get("/:livro_id/resenhas/:id", ResenhaController.buscarPorIdDoLivro);
-
 router.post("/:livro_id/resenhas", ResenhaController.criarParaLivro);
-
 router.put("/:livro_id/resenhas/:id", ResenhaController.atualizarDoLivro);
 router.delete("/:livro_id/resenhas/:id", ResenhaController.deletarDoLivro);
 

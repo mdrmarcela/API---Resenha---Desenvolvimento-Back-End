@@ -31,14 +31,13 @@ const schemaLoginUsuario = {
   additionalProperties: false,
 };
 
-// schema para UPDATE (senha opcional)
 const schemaUpdateUsuario = {
   type: "object",
   required: ["nome", "email"],
   properties: {
     nome: { type: "string", minLength: 1 },
     email: { type: "string", minLength: 5, pattern: "^.+@.+\\..+$" },
-    senha: { type: "string", minLength: 6 }, // opcional
+    senha: { type: "string", minLength: 6 }, 
   },
   additionalProperties: false,
 };
@@ -65,10 +64,6 @@ const UsuarioController = {
       if (usuarioExistente) {
         return res.status(409).json({ erro: "E-mail já cadastrado" });
       }
-
-      // Se seu model já hasheia no beforeCreate, OK.
-      // Se NÃO hasheia, descomente esta linha e remova o hook do model:
-      // const senhaHash = await bcrypt.hash(senha, 10);
 
       const usuario = await UsuarioModel.create({ nome, email, senha /* senha: senhaHash */ });
 
@@ -145,7 +140,7 @@ const UsuarioController = {
       console.error(err);
       return res.status(500).json({ erro: "Erro ao deletar usuário" });
     }
-  }, // ✅ vírgula aqui era obrigatória
+  }, 
 
   // PUT /usuarios/:id
   async atualizar(req, res) {
@@ -161,8 +156,6 @@ const UsuarioController = {
       const { id } = req.params;
       const idNum = Number(id);
 
-      // ✅ (OPCIONAL e recomendado) só permite editar a própria conta
-      // precisa do TokenValido.check colocando req.user = decoded
       if (req.user?.id && Number(req.user.id) !== idNum) {
         return res.status(403).json({ erro: "Você não pode editar outro usuário" });
       }
@@ -172,17 +165,14 @@ const UsuarioController = {
       const usuario = await UsuarioModel.findByPk(idNum);
       if (!usuario) return res.status(404).json({ erro: "Usuário não encontrado" });
 
-      // evita email duplicado (ignorando o próprio usuário)
       const usuarioExistente = await UsuarioModel.findOne({ where: { email } });
       if (usuarioExistente && Number(usuarioExistente.id) !== idNum) {
         return res.status(409).json({ erro: "E-mail já cadastrado" });
       }
 
-      // Atualiza campos
       usuario.nome = nome;
       usuario.email = email;
 
-      // ✅ Se veio senha, HASHEIA (porque beforeCreate não cobre update)
       if (senha && senha.trim()) {
         usuario.senha = await bcrypt.hash(senha, 10);
       }
