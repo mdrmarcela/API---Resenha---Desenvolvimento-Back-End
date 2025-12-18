@@ -12,7 +12,10 @@ router.post('/login', UsuarioController.login);
 // listar usuários (protegido por JWT)
 router.get('/', TokenValido.check, UsuarioController.listar);
 
-// deletar usuário
-router.delete("/:id", UsuarioController.deletar);
+// deletar usuário (protegido por JWT)
+router.delete("/:id", TokenValido.check, UsuarioController.deletar); 
+
+// atualizar usuário (protegido)
+router.put("/:id", TokenValido.check, UsuarioController.atualizar);
 
 module.exports = router;
